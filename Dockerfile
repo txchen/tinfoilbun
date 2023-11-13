@@ -1,4 +1,4 @@
-FROM hub.docker.com/r/oven/bun:latest as base
+FROM registry.hub.docker.com/oven/bun:latest as base
 WORKDIR /usr/src/app
 
 FROM base AS install
