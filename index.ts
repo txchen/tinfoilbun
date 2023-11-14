@@ -6,8 +6,8 @@ import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
 interface FileEntry {
-  url: string;
-  size: number;
+  url: string
+  size: number
 }
 
 const walk = async (dirPath: string): Promise<FileEntry[]> => {
@@ -22,10 +22,10 @@ const walk = async (dirPath: string): Promise<FileEntry[]> => {
       }
     }),
   )
-  return paths.flat().filter(e => ['nsz', 'nsp', 'xci'].includes(e.url.split(".").pop()?.toLowerCase() || ''))
+  return paths.flat().filter((e) => ['nsz', 'nsp', 'xci'].includes(e.url.split('.').pop()?.toLowerCase() || ''))
 }
 
-const tflContent: { files: FileEntry[]; success: string, directories: string[] } = {
+const tflContent: { files: FileEntry[]; success: string; directories: string[] } = {
   success: 'tinfoilbun: content not scanned',
   files: [],
   directories: [],
@@ -40,8 +40,11 @@ const scanContent = async () => {
   console.log('tflContent', tflContent)
   return tflContent
 }
+if (Bun.env.DELAY_SCAN && parseInt(Bun.env.DELAY_SCAN) > 0) {
+  const msToSleep = parseInt(Bun.env.DELAY_SCAN)
+  await Bun.sleep(msToSleep)
+}
 await scanContent()
-
 
 const app = new Hono()
 
@@ -68,4 +71,10 @@ app.post('/scan', async (c) => c.json(await scanContent()))
 // need to mount the files into 'static' here
 app.use('/static/*', serveStatic({ root: './' }))
 
+process.on('SIGTERM', () => {
+  console.log('EXIT')
+  process.exit(0)
+})
+
 export default app
+
