@@ -40,19 +40,22 @@ const scanContent = async () => {
   console.log('tflContent', tflContent)
   return tflContent
 }
-
 await scanContent()
 
 
 const app = new Hono()
 
-app.use(
-  '/*',
-  basicAuth({
-    username: 'u',
-    password: 'p',
-  }),
-)
+if (Bun.env.TFLB_AUTH) {
+  const [username, password] = Bun.env.TFLB_AUTH.split(':')
+  console.log('Enabling basic auth')
+  app.use(
+    '/*',
+    basicAuth({
+      username,
+      password,
+    }),
+  )
+}
 
 app.use('*', logger())
 
